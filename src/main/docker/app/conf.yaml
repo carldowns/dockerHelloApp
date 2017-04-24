@@ -1,4 +1,0 @@
-# Awesome.  See https://github.com/gtassone/dropwizard-archetype.git where I got this code from
-
-response: "response is: Docker Hello App"
-defaultHtmlResourceLocation: "/html"

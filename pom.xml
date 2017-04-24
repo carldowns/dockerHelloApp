@@ -5,10 +5,10 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.pwllc</groupId>
-	<artifactId>TestApp</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<artifactId>hello-docker-app</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	<name>Test DropWizard Archetype</name>
+	<name>DockerTestApp</name>
 
 	<properties>
 		<maven.compiler.target>1.7</maven.compiler.target>
@@ -16,7 +16,21 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<junit.version>4.11</junit.version>
 		<dropwizard.version>0.8.2</dropwizard.version>
+
+        <!-- leave empty for docker hub; use e.g. "localhost:5000/" for a local docker registry -->
+        <docker.registry.name></docker.registry.name>
+
+        <!--<docker.repository.name>${docker.registry.name}cdowns/${project.artifactId}</docker.repository.name>-->
+		<docker.repository.name>cdowns/${project.artifactId}</docker.repository.name>
+
+        <!-- this is not localhost when using boot2docker! -->
+        <!--<docker.host.address>localhost</docker.host.address>-->
+        <docker.host.address>192.168.99.100</docker.host.address>
+
+        <cdowns.port>8080</cdowns.port>
+        <cdowns.port.admin>8081</cdowns.port.admin>
 	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -81,6 +95,59 @@
 					</execution>
 				</executions>
 			</plugin>
+
+            <plugin>
+                <groupId>org.jolokia</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.13.3</version>
+                <configuration>
+                    <images>
+                        <image>
+                            <alias>${project.artifactId}</alias>
+                            <name>${docker.repository.name}:${project.version}</name>
+                            <build>
+                                <from>java:8-jre</from>
+                                <maintainer>cdowns</maintainer>
+                                <assembly>
+                                    <descriptor>docker-assembly.xml</descriptor>
+                                </assembly>
+                                <ports>
+                                    <port>8080</port>
+                                    <port>8081</port>
+                                </ports>
+                                <cmd>
+                                    <shell>java -jar \
+                                        /maven/${project.build.finalName}.jar server \
+                                        /maven/docker-config.yml</shell>
+                                </cmd>
+                            </build>
+                            <run>
+                                <namingStrategy>alias</namingStrategy>
+                                <ports>
+                                    <port>${cdowns.port}:8080</port>
+                                    <port>${cdowns.port.admin}:8081</port>
+                                </ports>
+                                <volumes>
+                                    <bind>
+                                        <volume>${user.home}/logs:/logs</volume>
+                                    </bind>
+                                </volumes>
+                                <wait>
+                                    <url>http://${docker.host.address}:${cdowns.port.admin}/ping</url>
+                                    <time>10000</time>
+                                </wait>
+                                <log>
+                                    <prefix>${project.artifactId}</prefix>
+                                    <color>cyan</color>
+                                </log>
+                            </run>
+                        </image>
+                    </images>
+                </configuration>
+            </plugin>
+
 		</plugins>
 	</build>
+
+
 </project>
