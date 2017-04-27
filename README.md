@@ -33,10 +33,9 @@ Run this command to configure your shell:
 ### maven POM file variable referencing the above IP
 
     <docker.host.address>192.168.99.100</docker.host.address>
-    
     make sure this address reflects the IP of your docker machine
 
-### the docker plug-in this example uses
+### the org.jolokia docker plug-in
 
     we are using this plugin recommended by Phillip:
     
@@ -51,9 +50,8 @@ Run this command to configure your shell:
                     
 ### make the project
 
-The docker machine must be running and the eval $(...) executed otherwise you get
-
-    build failed: No url given, no DOCKER_HOST environment variable and no read/writable
+    The docker machine must be running and the eval $(...) executed otherwise you get
+        --> build failed: No url given, no DOCKER_HOST environment variable and no read/writable
 
     $ mvn clean install
     
