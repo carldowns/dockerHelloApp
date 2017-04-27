@@ -22,5 +22,10 @@ public class RestResponse {
     public String get() {
         return response;
     }
-    
+
+    @GET
+    @Path("mongoHost")
+    public String getEnv() {
+        return "mongoHost:" + System.getProperty("dbHost") + ":" + System.getProperty("dbPort");
+    }
 }

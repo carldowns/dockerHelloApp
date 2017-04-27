@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.pwllc</groupId>
-  <artifactId>hello-docker-app</artifactId>
+  <artifactId>hello-docker-app-1</artifactId>
   <name>DockerTestApp</name>
   <version>1.0.0-SNAPSHOT</version>
   <build>
@@ -56,6 +56,23 @@
         <groupId>org.jolokia</groupId>
         <artifactId>docker-maven-plugin</artifactId>
         <version>0.13.3</version>
+        <executions>
+          <execution>
+            <id>start</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>build</goal>
+              <goal>start</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>stop</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>stop</goal>
+            </goals>
+          </execution>
+        </executions>
         <configuration>
           <images>
             <image>
@@ -72,7 +89,8 @@
                   <port>8081</port>
                 </ports>
                 <cmd>
-                  <shell>java -jar \
+                  <shell>java -DdbHost=$DB_PORT_27017_TCP_ADDR \
+                                        -DdbPort=$DB_PORT_27017_TCP_PORT -jar \
                                         /maven/${project.build.finalName}.jar server \
                                         /maven/docker-config.yml</shell>
                 </cmd>
@@ -95,6 +113,25 @@
                 <log>
                   <prefix>${project.artifactId}</prefix>
                   <color>cyan</color>
+                </log>
+                <links>
+                  <link>mongodb:db</link>
+                </links>
+              </run>
+            </image>
+            <image>
+              <alias>mongodb</alias>
+              <name>mongo:2.6.11</name>
+              <run>
+                <namingStrategy>alias</namingStrategy>
+                <cmd>--smallfiles</cmd>
+                <wait>
+                  <log>waiting for connections on port</log>
+                  <time>10000</time>
+                </wait>
+                <log>
+                  <prefix>MongoDB</prefix>
+                  <color>yellow</color>
                 </log>
               </run>
             </image>
