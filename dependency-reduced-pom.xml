@@ -150,7 +150,6 @@
           </execution>
         </executions>
         <configuration>
-          <phase>integration-test</phase>
           <includes>
             <include>**/*.java</include>
           </includes>
